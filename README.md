@@ -10,7 +10,7 @@ Install Taro:
 $npm install -g @tarojs/cli
 
 Install ui-libs:
-$npm install taro-ui
+$npm install taro-uiv3.0.0-alpha.10
 $npm i mp-colorui@1.0.0-beta.1
 
 Complie:
