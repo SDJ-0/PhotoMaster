@@ -4,7 +4,7 @@ Transfer your pictures by famous artists' styles! You can even upload pictures a
 
 This is a Taro/React-based WeChat Project, and you need to do the following steps to build a WeChat Project.
 
-Install nodejs(>=12.0.0).
+Install Node.js(>=12.0.0).
 
 Install Taro:
 $npm install -g @tarojs/cli
