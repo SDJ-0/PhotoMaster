@@ -1,6 +1,6 @@
 page{
     height: 100%;
-    background: #f7ecdc;
+    background: white;
 }
 
 .background-view{
@@ -9,11 +9,16 @@ page{
 }
 
 .image-box{
-    height: 70%;
+    // height: 100vw;
+    top: 120px;
+    bottom: 320px;
+    height: auto;
     display: flex;
     align-items: center;
-    position: relative;
-    background: #f7ecdc;
+    width: 100%;
+    // position: relative;
+    position: fixed;
+    background: #f0daaa9a;
 
 }
 
@@ -26,18 +31,18 @@ page{
     align-items: center;
 }
 
-.white-box{
-    background: white;
-    margin-left: 5%;
-    margin-right: 5%;
-    width: 90%;
-    height: 90vw;
-    display: flex;
-    align-items: center;
-}
+// .white-box{
+//     background: rgb(173, 171, 171);
+//     margin-left: 5%;
+//     margin-right: 5%;
+//     width: 90%;
+//     height: 90vw;
+//     display: flex;
+//     align-items: center;
+// }
 
 .scroll-box{
-    background: #f7ecdc;
+    background: #fef2ce;
 }
 
 .template-card{
@@ -59,4 +64,22 @@ page{
 .center{
     width: 100%;
     height: 100vw;
+}
+
+.chooseButton-box{
+    margin-top: 5%;
+    margin-bottom: 0%;
+}
+.bottom-box{
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    margin-bottom: 5%;
+}
+.top-box{
+    position: fixed;
+    top: 0;
+    width: 100%;
+
+    // background: white;
 }
