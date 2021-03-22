@@ -9,11 +9,16 @@ page{
 }
 
 .image-box{
-    height: 100vw;
+    // height: 100vw;
+    top: 120px;
+    bottom: 320px;
+    height: auto;
     display: flex;
     align-items: center;
-    position: relative;
-    background: #dddfdb9a;
+    width: 100%;
+    // position: relative;
+    position: fixed;
+    background: #f0daaa9a;
 
 }
 
@@ -59,4 +64,22 @@ page{
 .center{
     width: 100%;
     height: 100vw;
+}
+
+.chooseButton-box{
+    margin-top: 5%;
+    margin-bottom: 0%;
+}
+.bottom-box{
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    margin-bottom: 5%;
+}
+.top-box{
+    position: fixed;
+    top: 0;
+    width: 100%;
+
+    // background: white;
 }

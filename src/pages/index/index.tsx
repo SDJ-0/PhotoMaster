@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { ScrollView, View } from '@tarojs/components'
 import Taro, { getStorageSync, render } from '@tarojs/taro';
-import { ClTabs, ClButton, ClFlex, ClCard, ClText, ClIcon, ClModal, ClFloatButton, ClAvatar } from "mp-colorui";
+import { ClTabs, ClButton, ClFlex, ClCard, ClText, ClIcon, ClModal, ClFloatButton, ClAvatar, ClGrid } from "mp-colorui";
 import { AtCard, AtDrawer, AtImagePicker, AtTabs, AtTabsPane } from 'taro-ui';
 import './index.scss'
 
@@ -215,24 +215,26 @@ class ChooseTemplate extends Component {
   render() {
     return (
       <ClCard type="full" shadow={false} bgColor='#f7ecdc'>
-        {/* <ClFlex justify="between"> */}
-        <View className='at-row at-row__justify--around at-row__align--center' >
-          {/* <ClCard type="full" bgColor='#f7ecdc'> */}
-          <View className='at-col at-col-5'>
-            <ClFlex justify='center'>
-              <ClButton shape="round" size="large" bgColor='yellow' plain plainSize='bold'
-                onClick={() => { this.setState({ show: true }); }}>
-                <ClText text="选 择 模 板" size="xlarge" align="center" textColor="orange" />
-              </ClButton></ClFlex></View>
-          {/* </ClCard> */}
-          {/* <ClCard type="full" bgColor='#f7ecdc'> */}
-          <View className='at-col at-col-5'>
-            <ClFlex justify='center'>
-              <ClButton shape="round" size="large" bgColor='yellow' plain plainSize='bold'
-                onClick={this.uploadTemplate.bind(this)}>
-                <ClText text="上 传 模 板" size="xlarge" align="center" textColor="orange" />
-              </ClButton></ClFlex></View>
-          {/* </ClCard> */}
+        <View className="chooseButton-box">
+          {/* <ClFlex justify="between"> */}
+          <View className='at-row at-row__justify--around at-row__align--center' >
+            {/* <ClCard type="full" bgColor='#f7ecdc'> */}
+            <View className='at-col at-col-5'>
+              <ClFlex justify='center'>
+                <ClButton shape="round" size="large" bgColor='yellow' plain plainSize='bold'
+                  onClick={() => { this.setState({ show: true }); }}>
+                  <ClText text="选 择 模 板" size="xlarge" align="center" textColor="orange" />
+                </ClButton></ClFlex></View>
+            {/* </ClCard> */}
+            {/* <ClCard type="full" bgColor='#f7ecdc'> */}
+            <View className='at-col at-col-5'>
+              <ClFlex justify='center'>
+                <ClButton shape="round" size="large" bgColor='yellow' plain plainSize='bold'
+                  onClick={this.uploadTemplate.bind(this)}>
+                  <ClText text="上 传 模 板" size="xlarge" align="center" textColor="orange" />
+                </ClButton></ClFlex></View>
+            {/* </ClCard> */}
+          </View>
         </View>
         {/* </ClFlex> */}
         <AtDrawer
@@ -292,10 +294,10 @@ class Start extends Component {
   render() {
     return (
       <ClCard type="full" bgColor='#f7ecdc'>
-        <ClButton size="large" bgColor='orange' plain plainSize='bold' long={true}
-        // <ClButton size="large" bgColor='gradualOrange' long={true}
+        {/* <ClButton size="large" bgColor='orange' plain plainSize='bold' long={true} */}
+        <ClButton size="large" bgColor='gradualOrange' long={true}
           onClick={this.start.bind(this)}>
-          <ClText text="开 始" size="xxlarge" align="center" textColor="red" />
+          <ClText text="开 始" size="xxlarge" align="center" textColor="white" />
         </ClButton>
       </ClCard>
     )
@@ -316,56 +318,51 @@ class Help extends Component {
     return (
       // <ClCard shadow={false} type='full'>
       <View>
-        <View className='at-row at-row__justify--around at-row__align--center'>
-          <ClCard shadow={false} bgColor='white' type='full'>
-            <ClText text='开始你的创作！' size='xxlarge' textColor='yellow' />
-          </ClCard>
-          {/* <ClFloatButton
-            size='large'
-            bgColor='yellow'
-            closeWithShadow={true}
-            direction='vertical'
-            icon='question'
-            // move={true}
-            open={false}
-            shadow={false}
+        <View className='top-box'>
+          <View className='at-row at-row__justify--around at-row__align--center'>
+            <ClCard shadow={false} bgColor='white' type='full'>
+              <View className='at-row at-row__justify--between at-row__align--center'>
+                <View className='at-col at-col-2'>
+                  <ClIcon iconName='colorlens' color='red' size='large' /></View>
+                <View className='at-col at-col-9'>
+                  <ClText text={"开始你的创作！"} size='xxlarge' textColor='orange' /></View>
+              </View>
+            </ClCard>
+            <ClFloatButton
+              size='large'
+              bgColor='white'
+              closeWithShadow={true}
+              // direction='vertical'
+              icon='question'
+              iconColor='red'
+              // move={true}
+              open={false}
+              shadow={false}
+              onClick={() => this.setShow(true)}
+            />
+            {/* <ClAvatar shape='round' size='large' shadow={false}
+            headerArray={[{ icon: 'question', bgColor: 'white', iconColor: 'yellow' }]}
             onClick={() => this.setShow(true)}
           /> */}
-          <ClAvatar shape='round' size='large' shadow={false}
-            headerArray={[{ icon: 'question', bgColor: 'white' }]}
-            onClick={() => this.setShow(true)}
-          />
+          </View>
         </View>
         <ClModal
           show={this.state.show}
           closeWithShadow
-          title='我是标题'
+          title='帮助'
           close
-          actions={[
-            {
-              text: '取消',
-              color: 'red'
-            },
-            {
-              text: '确认',
-              color: 'blue'
-            }
-          ]}
-          onCancel={() => {
-            this.setShow(false);
-          }}
-          onClose={() => {
-            this.setShow(false);
-          }}
+          actions={[{ text: '确认', color: 'blue' }]}
+          onCancel={() => this.setShow(false)}
+          onClose={() => this.setShow(false)}
           onClick={index => {
             Taro.showToast({
-              title: index === 0 ? '取消' : '确认',
+              title: '确认',
               icon: 'none'
             });
           }}
         >
-          我是内容，我可以插入任何内容，点击阴影也可以关闭
-      </ClModal>
+          此处是说明。
+        </ClModal>
       </View>
       // {/* </ClCard> */}
 
@@ -523,18 +520,20 @@ export default class Index extends Component {
   render() {
     return (
       <View className='background-view'>
+        {/* <View className='top-box'> */}
         <Help />
-
-        <View className='image-box'>
-          <View className="center">
+        {/* </View> */}
+        <View className='image-box at-row at-row__justify--center at-row__align--center'>\
+            <View className="center">
             <ChooseUserImage />
           </View>
         </View>
-        {/* <ClFlex justify="center"> */}
-        <ChooseTemplate />
-        {/* </ClFlex> */}
-        <Start />
-
+        <View className='bottom-box'>
+          {/* <ClFlex justify="center"> */}
+          <ChooseTemplate />
+          {/* </ClFlex> */}
+          <Start />
+        </View>
       </View>
 
     )
