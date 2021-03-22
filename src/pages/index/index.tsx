@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { ScrollView, View } from '@tarojs/components'
 import Taro, { getStorageSync, render } from '@tarojs/taro';
-import { ClTabs, ClButton, ClFlex, ClCard, ClText, ClIcon } from "mp-colorui";
+import { ClTabs, ClButton, ClFlex, ClCard, ClText, ClIcon, ClModal, ClFloatButton, ClAvatar } from "mp-colorui";
 import { AtCard, AtDrawer, AtImagePicker, AtTabs, AtTabsPane } from 'taro-ui';
 import './index.scss'
 
@@ -215,20 +215,26 @@ class ChooseTemplate extends Component {
   render() {
     return (
       <ClCard type="full" shadow={false} bgColor='#f7ecdc'>
-        <ClFlex justify="between">
-          <ClCard type="full" bgColor='#f7ecdc'>
-            <ClButton shape="round" size="large" bgColor='gradualOrange'
-              onClick={() => { this.setState({ show: true }); }}>
-              <ClText text="选 择 模 板" size="large" align="center" textColor="white" />
-            </ClButton>
-          </ClCard>
-          <ClCard type="full" bgColor='#f7ecdc'>
-            <ClButton shape="round" size="large" bgColor='gradualOrange'
-              onClick={this.uploadTemplate.bind(this)}>
-              <ClText text="上 传 模 板" size="large" align="center" textColor="white" />
-            </ClButton>
-          </ClCard>
-        </ClFlex>
+        {/* <ClFlex justify="between"> */}
+        <View className='at-row at-row__justify--around at-row__align--center' >
+          {/* <ClCard type="full" bgColor='#f7ecdc'> */}
+          <View className='at-col at-col-5'>
+            <ClFlex justify='center'>
+              <ClButton shape="round" size="large" bgColor='yellow' plain plainSize='bold'
+                onClick={() => { this.setState({ show: true }); }}>
+                <ClText text="选 择 模 板" size="xlarge" align="center" textColor="orange" />
+              </ClButton></ClFlex></View>
+          {/* </ClCard> */}
+          {/* <ClCard type="full" bgColor='#f7ecdc'> */}
+          <View className='at-col at-col-5'>
+            <ClFlex justify='center'>
+              <ClButton shape="round" size="large" bgColor='yellow' plain plainSize='bold'
+                onClick={this.uploadTemplate.bind(this)}>
+                <ClText text="上 传 模 板" size="xlarge" align="center" textColor="orange" />
+              </ClButton></ClFlex></View>
+          {/* </ClCard> */}
+        </View>
+        {/* </ClFlex> */}
         <AtDrawer
           show={this.state.show}
           onClose={() => { this.setState({ show: false }); }}
@@ -286,16 +292,86 @@ class Start extends Component {
   render() {
     return (
       <ClCard type="full" bgColor='#f7ecdc'>
-        {/* <ClButton size="large" bgColor='gray' plain plainSize='bold' long={true} */}
-        <ClButton size="large" bgColor='gradualOrange' long={true}
+        <ClButton size="large" bgColor='orange' plain plainSize='bold' long={true}
+        // <ClButton size="large" bgColor='gradualOrange' long={true}
           onClick={this.start.bind(this)}>
-          <ClText text="开 始" size="xxlarge" align="center" textColor="white" />
+          <ClText text="开 始" size="xxlarge" align="center" textColor="red" />
         </ClButton>
       </ClCard>
     )
   }
 }
 
+class Help extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { show: false }
+  }
+
+  setShow(show) {
+    this.setState({ show: show })
+  }
+
+  render() {
+    return (
+      // <ClCard shadow={false} type='full'>
+      <View>
+        <View className='at-row at-row__justify--around at-row__align--center'>
+          <ClCard shadow={false} bgColor='white' type='full'>
+            <ClText text='开始你的创作！' size='xxlarge' textColor='yellow' />
+          </ClCard>
+          {/* <ClFloatButton
+            size='large'
+            bgColor='yellow'
+            closeWithShadow={true}
+            direction='vertical'
+            icon='question'
+            // move={true}
+            open={false}
+            shadow={false}
+            onClick={() => this.setShow(true)}
+          /> */}
+          <ClAvatar shape='round' size='large' shadow={false}
+            headerArray={[{ icon: 'question', bgColor: 'white' }]}
+            onClick={() => this.setShow(true)}
+          />
+        </View>
+        <ClModal
+          show={this.state.show}
+          closeWithShadow
+          title='我是标题'
+          close
+          actions={[
+            {
+              text: '取消',
+              color: 'red'
+            },
+            {
+              text: '确认',
+              color: 'blue'
+            }
+          ]}
+          onCancel={() => {
+            this.setShow(false);
+          }}
+          onClose={() => {
+            this.setShow(false);
+          }}
+          onClick={index => {
+            Taro.showToast({
+              title: index === 0 ? '取消' : '确认',
+              icon: 'none'
+            });
+          }}
+        >
+          我是内容，我可以插入任何内容，点击阴影也可以关闭
+      </ClModal>
+      </View>
+      // {/* </ClCard> */}
+
+    )
+  }
+}
 
 function initialize() {
   const memory_name = ['userImagePath', 'templateType', 'templateIndex']
@@ -391,8 +467,6 @@ export default class Index extends Component {
     //   dataType: 'json',
     //   success: function (res) {
     //     if (res.statusCode === 200) {
-    //       Taro.setStorage({ key: 'publicTemplateNum', data: res.data.publicTemplateNum })
-    //       Taro.setStorage({ key: 'privateTemplateNum', data: res.data.privateTemplateNum })
     //       Taro.setStorage({ key: 'publicImageUrl', data: res.data.publicTemplateUrl })
     //       Taro.setStorage({ key: 'privateImageUrl', data: res.data.privateTemplateUrl })
     //     }
@@ -447,20 +521,22 @@ export default class Index extends Component {
 
 
   render() {
-
     return (
       <View className='background-view'>
+        <Help />
+
         <View className='image-box'>
-          {/* <ClText text="选择你的图像" size="slarge" align="center" textColor="grey" /> */}
           <View className="center">
             <ChooseUserImage />
           </View>
         </View>
-        <ClFlex justify="center">
-          <ChooseTemplate />
-        </ClFlex>
+        {/* <ClFlex justify="center"> */}
+        <ChooseTemplate />
+        {/* </ClFlex> */}
         <Start />
+
       </View>
+
     )
   }
 }
