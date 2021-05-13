@@ -58,7 +58,7 @@ function getUserInfomation() {
       if (res.code) {
         //发起网络请求
         Taro.request({
-          url: 'http://127.0.0.1:8000/',
+          url: '',
           data: {
             code: res.code
           },
@@ -128,17 +128,31 @@ function getPublicTemplate() {
     success: function (res) {
       console.log(res);
       if (res.statusCode === 200) {
+
         var ps = [new Promise((resolve, reject) => { })];
         ps.pop();
-        let info = res.data.templateInfo;
-        let memory = []
-        info.array.forEach(element => {
+        let info = [];
+        for (var i = 0; i < res.data.length; i++){
+          var parse = {};
+          var item = res.data[i];
+          parse['templateID'] = item.pk;
+          parse['templateName'] = item.fields.name;
+          parse['authorName'] = item.fields.user_nickname;
+          parse['templateDesc'] = item.fields.desc;
+          parse['templateURL'] = item.fields.pic_path;
+          parse['templateState'] = item.fields.is_available;
+          info.push(parse);
+        }
+        console.log(info);
+        let memory = [];
+        info.forEach(element => {
           ps.push(new Promise((resolve, reject) => {
             let tmp = element
             Taro.downloadFile({
               url: element['templateURL'],
               success: function (res) {
                 if (res.statusCode === 200) {
+                  
                   tmp['templatePath'] = res.tempFilePath;
                   memory.push(tmp);
                   resolve('success');
@@ -147,7 +161,7 @@ function getPublicTemplate() {
                   reject('fail to download public picture');
                 }
               },
-              fail: () => { reject('fail to get private url') }
+              fail: () => { reject('fail to get public url') }
             })
           }))
         });
@@ -189,7 +203,7 @@ export default class Index extends Component {
       console.log(e)
     }
 
-    getUserInfomation()
+    // getUserInfomation()
 
     initialize()
 

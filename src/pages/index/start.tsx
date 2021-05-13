@@ -31,41 +31,45 @@ export class Start extends Component {
         console.log('userImagePath', userImagePath)
         console.log('templateID', templateID)
         console.log('userID', userID)
-        // // 上传用户图片
-        // Taro.uploadFile({
-        //     url: 'http://127.0.0.1:8000/transfer',
-        //     filePath: userImagePath,
-        //     name: 'img',
-        //     formData: {
-        //         tmplateID: Taro.getStorageSync('templateID'),
-        //         userID: Taro.getStorageSync('userID'),
-        //     },
-        //     success: (res) => {
-        //         if (res.data.url == ''){
-        //             Taro.showToast({
-        //                 title: '使用次数到达上限',
-        //                 icon: 'none'
-        //             })
-        //         }
-        //         Taro.downloadFile({
-        //             url: res.data.url,
-        //             success: function (res) {
-        //                 if (res.statusCode === 200) {
-        //                     that.setState({
-        //                         outPath: res.tempFilePath,
-        //                         outshow: true
-        //                     })
-        //                 }
-        //             },
-        //             fail: () => {
-        //                 Taro.showToast({
-        //                     title: '失败',
-        //                     icon: 'none'
-        //                 })
-        //             }
-        //         })
-        //     }
-        // })
+        // 上传用户图片
+        Taro.uploadFile({
+            url: 'http://127.0.0.1:8000/transfer/',
+            filePath: userImagePath,
+            name: 'img',
+            formData: {
+                templateID: Taro.getStorageSync('templateID'),
+                // userID: Taro.getStorageSync('userID'),
+                userID: 'test',
+            },
+            timeout: 100000,
+            success: (res) => {
+                console.log(res)
+                if (res.data == '') {
+                    Taro.showToast({
+                        title: '使用次数到达上限',
+                        icon: 'none'
+                    })
+                }
+                Taro.downloadFile({
+                    url: res.data,
+                    success: function (res) {
+                        if (res.statusCode === 200) {
+                            that.setState({
+                                outPath: res.tempFilePath,
+                                outShow: true
+                            })
+                        }
+                        console.log('download success')
+                    },
+                    fail: () => {
+                        Taro.showToast({
+                            title: '失败',
+                            icon: 'none'
+                        })
+                    }
+                })
+            }
+        })
     }
 
 
@@ -119,6 +123,7 @@ export class Start extends Component {
                         this.clean()
                     }}
                 >
+                    <image src={this.state.outPath} mode='aspectFit'></image>
                 </ClModal>
             </ClCard>
         )
