@@ -59,14 +59,14 @@ export class Help extends Component {
                     onCancel={() => this.setShow(false)}
                     onClose={() => this.setShow(false)}
                     onClick={index => {
-                        Taro.showToast({
-                            title: '确认',
-                            icon: 'none'
-                        });
+                        this.setState({ show: false })
                     }}
                 >
-                    此处是说明。
-          </ClModal>
+                    <ClText text={"点击“选择模板”可以选择提供的模板！"} size='large' ></ClText>
+                    <ClText text={"点击“上传模板”可以上传你喜欢的模板！"} size='large' ></ClText>
+                    <ClText text={"点击“开始”进行你的创作！"} size='large' ></ClText>
+                    <ClText text={"（上传模板5次/月，开始创作30次/月）"} size='normal' ></ClText>
+                </ClModal>
             </View>
             // {/* </ClCard> */}
 

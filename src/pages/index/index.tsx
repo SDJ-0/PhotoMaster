@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ScrollView, View } from '@tarojs/components'
+import { Icon, ScrollView, View } from '@tarojs/components'
 import Taro, { getStorageSync, render } from '@tarojs/taro';
 import { ClTabs, ClButton, ClFlex, ClCard, ClText, ClIcon, ClModal, ClFloatButton, ClAvatar, ClGrid } from "mp-colorui";
 import { AtCard, AtDrawer, AtImagePicker, AtTabs, AtTabsPane } from 'taro-ui';
@@ -12,14 +12,151 @@ import { Help } from './help'
 // 选择用户图像
 
 function initialize() {
-  const memory_name = ['userImagePath', 'templateType', 'templateIndex']
+  const memory_name = ['userImagePath', 'templateID']
   memory_name.map((item) => {
     Taro.getStorage({
       key: item,
       fail: () => Taro.setStorage({ key: item, data: null })
     })
   })
+}
 
+
+function getUserInfomation() {
+  Taro.getSetting({
+    success: function (res) {
+      if (!res.authSetting['scope.writePhotosAlbum']) {
+        Taro.authorize({
+          scope: 'scope.writePhotosAlbum',
+          success: () => {
+            Taro.showToast({
+              title: '授权成功',
+              icon: 'success',
+              duration: 2000
+            })
+          }
+        })
+      }
+    }
+  })
+
+  Taro.getUserInfo({
+    success: function (res) {
+      var userInfo = res.userInfo
+      var nickName = userInfo.nickName
+      Taro.setStorage({ key: 'userName', data: nickName })
+      console.log('get user info success')
+      console.log(res)
+    },
+    fail: (res) => {
+      console.log(res.errMsg)
+    }
+  })
+
+  Taro.login({
+    success(res) {
+      if (res.code) {
+        //发起网络请求
+        Taro.request({
+          url: 'http://127.0.0.1:8000/',
+          data: {
+            code: res.code
+          },
+          success: (res1) => {
+            Taro.setStorage({ key: 'userID', data: res1.code })
+            Taro.showToast({ title: '登陆成功！', icon: "success" })
+          },
+          fail: () => {
+            Taro.setStorage({ key: 'userID', data: null })
+            Taro.showToast({ title: '登陆失败！', icon: "none" })
+          }
+        })
+      } else {
+        console.log('登录失败！' + res.errMsg)
+      }
+    }
+  })
+}
+
+
+// 获取用户模板信息
+function getPrivateTemplate() {
+  Taro.request({
+    url: 'http://127.0.0.1:8000/usertemplate/',
+    data: { userID: Taro.getStorageSync('userID') },
+    method: "GET",
+    dataType: 'json',
+    success: function (res) {
+      if (res.statusCode === 200) {
+        var ps = [new Promise((resolve, reject) => { })];
+        ps.pop();
+        let info = res.data.templateInfo;
+        let memory = [];
+        info.array.forEach(element => {
+          ps.push(new Promise((resolve, reject) => {
+            let tmp = element
+            Taro.downloadFile({
+              url: element['templateURL'],
+              success: function (res) {
+                if (res.statusCode === 200) {
+                  tmp['templatePath'] = res.tempFilePath;
+                  memory.push(tmp);
+                  resolve('success');
+                }
+                else {
+                  reject('fail to download private picture');
+                }
+              },
+              fail: () => { reject('fail to get private url') }
+            })
+          }))
+        });
+        Promise.all(ps).then(values => { Taro.setStorage({ key: 'privateTemplateInfo', data: memory }) })
+          .catch(reason => { console.log(reason) })
+      }
+    },
+    fail: () => { Taro.showToast({ title: '获取用户模板信息失败', icon: 'none' }) }
+  })
+}
+
+// 获取公共模板信息
+function getPublicTemplate() {
+  Taro.request({
+    url: 'http://127.0.0.1:8000/template/',
+    dataType: 'json',
+    method: "GET",
+    success: function (res) {
+      console.log(res);
+      if (res.statusCode === 200) {
+        var ps = [new Promise((resolve, reject) => { })];
+        ps.pop();
+        let info = res.data.templateInfo;
+        let memory = []
+        info.array.forEach(element => {
+          ps.push(new Promise((resolve, reject) => {
+            let tmp = element
+            Taro.downloadFile({
+              url: element['templateURL'],
+              success: function (res) {
+                if (res.statusCode === 200) {
+                  tmp['templatePath'] = res.tempFilePath;
+                  memory.push(tmp);
+                  resolve('success');
+                }
+                else {
+                  reject('fail to download public picture');
+                }
+              },
+              fail: () => { reject('fail to get private url') }
+            })
+          }))
+        });
+        Promise.all(ps).then(values => { Taro.setStorage({ key: 'publicTemplateInfo', data: memory }) })
+          .catch(reason => { console.log(reason) })
+      }
+    },
+    fail: () => { Taro.showToast({ title: '获取公共模板信息失败', icon: 'none' }) }
+  })
 }
 
 export default class Index extends Component {
@@ -28,39 +165,11 @@ export default class Index extends Component {
     super(props);
   }
 
-
   onLaunch() {
-    Taro.getSetting({
-      success: function (res) {
-        if (!res.authSetting['scope.writePhotosAlbum']) {
-          Taro.authorize({
-            scope: 'scope.writePhotosAlbum',
-            success: () => {
-              Taro.showToast({
-                title: '授权成功',
-                icon: 'success',
-                duration: 2000
-              })
-            }
-          })
-        }
-      }
-    })
-
-    Taro.login({
-      success(res) {
-        if (res.code) {
-          console.log('userID', res.code);
-          Taro.setStorage({ key: 'userID', data: res.code })
-        } else {
-          console.log("登录失败！" + res.errMsg);
-        }
-      }
-    })
+    getUserInfomation()
 
     Taro.setStorage({ key: 'userImagePath', data: null })
-    Taro.setStorage({ key: 'templateType', data: null })
-    Taro.setStorage({ key: 'templateIndex', data: null })
+    Taro.setStorage({ key: 'templateID', data: null })
 
     try {
       const res = Taro.getSystemInfoSync()
@@ -80,52 +189,13 @@ export default class Index extends Component {
       console.log(e)
     }
 
-    Taro.getStorage({
-      key: 'userID',
-      fail: () => {
-        Taro.login({
-          success(res) {
-            if (res.code) {
-              console.log('userID', res.code);
-              Taro.setStorage({ key: 'userID', data: res.code })
-            } else {
-              console.log("登录失败！" + res.errMsg);
-            }
-          }
-        })
-      }
-    })
+    getUserInfomation()
 
     initialize()
 
-    // 获取模板信息
-    // Taro.request({
-    //   url: '',
-    //   data: Taro.getStorageSync('userID'),
-    //   dataType: 'json',
-    //   success: function (res) {
-    //     if (res.statusCode === 200) {
-    //       Taro.setStorage({ key: 'publicImageUrl', data: res.data.publicTemplateUrl })
-    //       Taro.setStorage({ key: 'privateImageUrl', data: res.data.privateTemplateUrl })
-    //     }
-    //   }
-    // })
+    // getPrivateTemplate()
 
-    // 提前下载模板
-    // for (let i = 0; i < Taro.getStorageSync('publicTemplateNum'); i++) {
-    //   Taro.getStorageSync('publicImageUrl').map(
-    //     (index, url) => {
-    //       Taro.downloadFile({
-    //         url: url,
-    //         success: function (res) {
-    //           if (res.statusCode === 200) {
-    //             Taro.setStorage({ key: 'publicTemplate' + String(index), data: res.filePath })
-    //           }
-    //         }
-    //       })
-    //     }
-    //   )
-    // }
+    getPublicTemplate()
   }
 
   setUserImage(res, path) {

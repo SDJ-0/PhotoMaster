@@ -8,45 +8,76 @@ import './index.scss'
 export class Start extends Component {
     constructor(props) {
         super(props);
+        this.state = {
+            outPath: '',
+            outShow: false
+        }
     }
 
 
     start() {
+        let that = this
         let userImagePath = Taro.getStorageSync('userImagePath')
-        let templateType = Taro.getStorageSync('templateType')
-        let templateIndex = Taro.getStorageSync('templateIndex')
+        let templateID = Taro.getStorageSync('templateID')
         let userID = Taro.getStorageSync('userID')
-        if (userImagePath == null) {
+        if (userImagePath === null || templateID === null) {
             Taro.showToast({
-                title: '请选择图片！',
+                title: '请选择图片及模板！',
                 icon: 'none',
                 duration: 2000
             })
             return
         }
         console.log('userImagePath', userImagePath)
-        console.log('templateType', templateType)
-        console.log('temmplateIndex', templateIndex)
+        console.log('templateID', templateID)
         console.log('userID', userID)
-
-        console.log(String(Taro.getStorageSync('width')) + 'px')
-        // 上传用户图片
+        // // 上传用户图片
         // Taro.uploadFile({
-        //   url: '',
-        //   filePath: userImagePath,
-        //   name: 'img',
-        //   formData: {
-        //     tmplateType: templateType,
-        //     templateIndex: templateIndex,
-        //     userID: userID
-        //   },
-        //   success: (res) => {
-
-        //   }
+        //     url: 'http://127.0.0.1:8000/transfer',
+        //     filePath: userImagePath,
+        //     name: 'img',
+        //     formData: {
+        //         tmplateID: Taro.getStorageSync('templateID'),
+        //         userID: Taro.getStorageSync('userID'),
+        //     },
+        //     success: (res) => {
+        //         if (res.data.url == ''){
+        //             Taro.showToast({
+        //                 title: '使用次数到达上限',
+        //                 icon: 'none'
+        //             })
+        //         }
+        //         Taro.downloadFile({
+        //             url: res.data.url,
+        //             success: function (res) {
+        //                 if (res.statusCode === 200) {
+        //                     that.setState({
+        //                         outPath: res.tempFilePath,
+        //                         outshow: true
+        //                     })
+        //                 }
+        //             },
+        //             fail: () => {
+        //                 Taro.showToast({
+        //                     title: '失败',
+        //                     icon: 'none'
+        //                 })
+        //             }
+        //         })
+        //     }
         // })
     }
 
+
+    clean() {
+        this.setState({
+            outShow: false,
+            outPath: ''
+        })
+    }
+
     render() {
+        let that = this
         return (
             <ClCard type="full" bgColor='#f7ecdc'>
                 {/* <ClButton size="large" bgColor='orange' plain plainSize='bold' long={true} */}
@@ -54,6 +85,41 @@ export class Start extends Component {
                     onClick={this.start.bind(this)}>
                     <ClText text="开 始" size="xxlarge" align="center" textColor="white" />
                 </ClButton>
+                <ClModal
+                    show={that.state.outShow}
+                    title='你的作品'
+                    actions={[
+                        { text: '关闭', color: 'red' },
+                        { text: '保存', color: 'blue' }
+                    ]}
+                    onCancel={() => { this.clean() }}
+                    onClose={() => { this.clean() }}
+                    onClick={index => {
+                        if (index === 1) {
+                            Taro.saveImageToPhotosAlbum({
+                                filePath: this.state.outPath,
+                                success: function (res) {
+                                    Taro.showToast({
+                                        title: '保存成功',
+                                        icon: 'success'
+                                    })
+                                },
+                                fail: () => Taro.showToast({
+                                    title: '保存失败',
+                                    icon: 'none'
+                                })
+                            })
+                        }
+                        else {
+                            Taro.showToast({
+                                title: '取消',
+                                icon: 'none'
+                            })
+                        }
+                        this.clean()
+                    }}
+                >
+                </ClModal>
             </ClCard>
         )
     }
