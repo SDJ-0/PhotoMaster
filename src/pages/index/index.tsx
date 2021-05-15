@@ -12,7 +12,7 @@ import { Help } from './help'
 // 选择用户图像
 
 function initialize() {
-  const memory_name = ['userImagePath', 'templateID']
+  const memory_name = ['userImagePath', 'templateID', 'templatePath']
   memory_name.map((item) => {
     Taro.getStorage({
       key: item,
@@ -182,8 +182,7 @@ export default class Index extends Component {
   onLaunch() {
     getUserInfomation()
 
-    Taro.setStorage({ key: 'userImagePath', data: null })
-    Taro.setStorage({ key: 'templateID', data: null })
+    initialize()
 
     try {
       const res = Taro.getSystemInfoSync()

@@ -28,6 +28,7 @@ export class TempalteImg extends Component {
                         mode='aspectFit'
                         onClick={() => {
                             Taro.setStorage({ key: 'templateID', data: templateInfo[i]['templateID'] })
+                            Taro.setStorage({ key: 'templatePath', data: templateInfo[i]['templatePath'] })
                             this.props.click(templateInfo[i]['templatePath'], templateInfo[i])
                         }}
                     />
@@ -155,6 +156,7 @@ export class ChooseTemplate extends Component {
     cancelChoose() {
         this.setState({ templateModalShow: false })
         Taro.setStorage({ key: 'templateID', data: null })
+        Taro.setStorage({ key: 'templatePath', data: null })
     }
 
     render() {
@@ -202,6 +204,11 @@ export class ChooseTemplate extends Component {
                     onClose={() => { this.cancelChoose() }}
                     onClick={index => {
                         if (index === 1) {
+                            Taro.showToast({
+                                title: '选择成功！',
+                                icon: 'success',
+                                duration: 2000
+                            })
                             this.setState({ templateModalShow: false })
                         }
                         else {

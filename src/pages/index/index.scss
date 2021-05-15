@@ -87,3 +87,38 @@ page{
 .input-box{
     padding: 2%;
 }
+
+.outcome-box{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5%;
+    .local-box{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+		// box-shadow: 0px 0px 25px 3px #e7e7e7;
+        .localtot-box{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 45%;
+            height: 45vw;
+            margin: 3%;
+            border-radius: 10px;
+		    box-shadow: 0px 0px 25px 3px #e7e7e7;
+
+            .localimg-box{
+                width: 100%;
+                height: 100vw;
+            }
+        }
+    }
+    .return-box{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 3%;
+		box-shadow: 0px 0px 25px 3px #e7e7e7;
+        border-radius: 10px;
+    }
+}

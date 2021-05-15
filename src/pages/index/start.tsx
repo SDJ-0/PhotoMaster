@@ -123,7 +123,21 @@ export class Start extends Component {
                         this.clean()
                     }}
                 >
-                    <image src={this.state.outPath} mode='aspectFit'></image>
+                    <view className="outcome-box">
+                        <view className="local-box">
+                            <view className="localtot-box">
+                                <ClText text="原 图"></ClText>
+                                <image src={Taro.getStorageSync('userImagePath')} mode='aspectFit'></image>
+                            </view>
+                            <view className="localtot-box">
+                                <ClText text="模 板"></ClText>
+                                <image src={Taro.getStorageSync('templatePath')} mode='aspectFit'></image>
+                            </view></view>
+                        <view className="return-box">
+                            <ClText text="结 果" size="large"></ClText>
+                            <image src={this.state.outPath} mode='aspectFit'></image>
+                        </view>
+                    </view>
                 </ClModal>
             </ClCard>
         )
