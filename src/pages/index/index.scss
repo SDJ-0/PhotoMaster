@@ -51,6 +51,7 @@ page{
     margin-right: 5%;
     margin-top: 5vw;
     margin-bottom: 5vw;
+    padding: 7%;
     // padding-left: 5%;
     // padding-right: 5%;
     box-shadow: 10px 10px 5px #e0e0e0;
@@ -92,10 +93,15 @@ page{
     display: flex;
     flex-direction: column;
     margin-bottom: 5%;
+    background-color: #fef2ce;
+    border-radius: 10px;
     .local-box{
         display: flex;
         flex-direction: row;
         justify-content: center;
+        background-color: #fef2ce;
+        border-radius: 10px;
+
 		// box-shadow: 0px 0px 25px 3px #e7e7e7;
         .localtot-box{
             display: flex;
@@ -106,11 +112,8 @@ page{
             margin: 3%;
             border-radius: 10px;
 		    box-shadow: 0px 0px 25px 3px #e7e7e7;
-
-            .localimg-box{
-                width: 100%;
-                height: 100vw;
-            }
+            background-color: white;
+            padding-top: 2%;
         }
     }
     .return-box{
@@ -120,5 +123,17 @@ page{
         margin: 3%;
 		box-shadow: 0px 0px 25px 3px #e7e7e7;
         border-radius: 10px;
+        background-color: white;
+        padding-top: 2%;
+    }
+
+    .img-box{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        margin: 3%;
+        width: 80%;
+        height: 20vw;
     }
 }

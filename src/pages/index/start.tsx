@@ -60,12 +60,16 @@ export class Start extends Component {
                             })
                         }
                         console.log('download success')
+                        Taro.setStorage({ key: "templateID", data: null })
+
                     },
                     fail: () => {
                         Taro.showToast({
-                            title: '失败',
+                            title: '下载失败',
                             icon: 'none'
                         })
+                        Taro.setStorage({ key: "templateID", data: null })
+
                     }
                 })
             }
@@ -91,6 +95,7 @@ export class Start extends Component {
                 </ClButton>
                 <ClModal
                     show={that.state.outShow}
+                    // show={true}
                     title='你的作品'
                     actions={[
                         { text: '关闭', color: 'red' },
@@ -127,15 +132,15 @@ export class Start extends Component {
                         <view className="local-box">
                             <view className="localtot-box">
                                 <ClText text="原 图"></ClText>
-                                <image src={Taro.getStorageSync('userImagePath')} mode='aspectFit'></image>
+                                <image src={Taro.getStorageSync('userImagePath')} mode='aspectFit' style="padding:8%;"></image>
                             </view>
                             <view className="localtot-box">
                                 <ClText text="模 板"></ClText>
-                                <image src={Taro.getStorageSync('templatePath')} mode='aspectFit'></image>
+                                <image src={Taro.getStorageSync('templatePath')} mode='aspectFit' style="padding:8%;"></image>
                             </view></view>
                         <view className="return-box">
                             <ClText text="结 果" size="large"></ClText>
-                            <image src={this.state.outPath} mode='aspectFit'></image>
+                            <image src={this.state.outPath} mode='aspectFit' style="padding:8%;"></image>
                         </view>
                     </view>
                 </ClModal>
