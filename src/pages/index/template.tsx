@@ -27,9 +27,17 @@ export class TempalteImg extends Component {
                         src={templateInfo[i]['templatePath']}
                         mode='aspectFit'
                         onClick={() => {
-                            Taro.setStorage({ key: 'templateID', data: templateInfo[i]['templateID'] })
-                            Taro.setStorage({ key: 'templatePath', data: templateInfo[i]['templatePath'] })
-                            this.props.click(templateInfo[i]['templatePath'], templateInfo[i])
+                            if (templateInfo[i]['templateState']) {
+                                Taro.setStorage({ key: 'templateID', data: templateInfo[i]['templateID'] })
+                                Taro.setStorage({ key: 'templatePath', data: templateInfo[i]['templatePath'] })
+                                this.props.click(templateInfo[i]['templatePath'], templateInfo[i])
+                            }
+                            else{
+                                Taro.showToast({
+                                    title: '模型尚未训练完成，请稍后再试',
+                                    icon: 'none'
+                                })
+                            }
                         }}
                     />
                 </View>

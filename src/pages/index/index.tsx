@@ -40,42 +40,46 @@ function getUserInfomation() {
     }
   })
 
-  Taro.getUserInfo({
-    success: function (res) {
-      var userInfo = res.userInfo
-      var nickName = userInfo.nickName
-      Taro.setStorage({ key: 'userName', data: nickName })
-      console.log('get user info success')
-      console.log(res)
-    },
-    fail: (res) => {
-      console.log(res.errMsg)
-    }
+  Taro.getStorage({
+    key: 'userName',
+    fail: () => Taro.getUserInfo({
+      success: function (res) {
+        var userInfo = res.userInfo
+        var nickName = userInfo.nickName
+        Taro.setStorage({ key: 'userName', data: nickName })
+        console.log('get user info success')
+        console.log(res)
+      },
+      fail: (res) => {
+        console.log(res.errMsg)
+      }
+    })
   })
 
-  Taro.login({
-    success(res) {
-      if (res.code) {
-        //发起网络请求
-        Taro.request({
-          url: '',
-          data: {
-            code: res.code
-          },
-          success: (res1) => {
-            Taro.setStorage({ key: 'userID', data: res1.code })
-            Taro.showToast({ title: '登陆成功！', icon: "success" })
-          },
-          fail: () => {
-            Taro.setStorage({ key: 'userID', data: null })
-            Taro.showToast({ title: '登陆失败！', icon: "none" })
-          }
-        })
-      } else {
-        console.log('登录失败！' + res.errMsg)
-      }
-    }
-  })
+
+  // Taro.login({
+  //   success(res) {
+  //     if (res.code) {
+  //       //发起网络请求
+  //       Taro.request({
+  //         url: '',
+  //         data: {
+  //           code: res.code
+  //         },
+  //         success: (res1) => {
+  //           Taro.setStorage({ key: 'userID', data: res1.code })
+  //           Taro.showToast({ title: '登陆成功！', icon: "success" })
+  //         },
+  //         fail: () => {
+  //           Taro.setStorage({ key: 'userID', data: null })
+  //           Taro.showToast({ title: '登陆失败！', icon: "none" })
+  //         }
+  //       })
+  //     } else {
+  //       console.log('登录失败！' + res.errMsg)
+  //     }
+  //   }
+  // })
 }
 
 
@@ -90,7 +94,18 @@ function getPrivateTemplate() {
       if (res.statusCode === 200) {
         var ps = [new Promise((resolve, reject) => { })];
         ps.pop();
-        let info = res.data.templateInfo;
+        let info = [];
+        for (var i = 0; i < res.data.length; i++) {
+          var parse = {};
+          var item = res.data[i];
+          parse['templateID'] = item.pk;
+          parse['templateName'] = item.fields.name;
+          parse['authorName'] = item.fields.user_nickname;
+          parse['templateDesc'] = item.fields.desc;
+          parse['templateURL'] = item.fields.pic_path;
+          parse['templateState'] = item.fields.is_available;
+          info.push(parse);
+        }
         let memory = [];
         info.array.forEach(element => {
           ps.push(new Promise((resolve, reject) => {
@@ -128,11 +143,10 @@ function getPublicTemplate() {
     success: function (res) {
       console.log(res);
       if (res.statusCode === 200) {
-
         var ps = [new Promise((resolve, reject) => { })];
         ps.pop();
         let info = [];
-        for (var i = 0; i < res.data.length; i++){
+        for (var i = 0; i < res.data.length; i++) {
           var parse = {};
           var item = res.data[i];
           parse['templateID'] = item.pk;
@@ -152,7 +166,6 @@ function getPublicTemplate() {
               url: element['templateURL'],
               success: function (res) {
                 if (res.statusCode === 200) {
-                  
                   tmp['templatePath'] = res.tempFilePath;
                   memory.push(tmp);
                   resolve('success');
@@ -184,27 +197,18 @@ export default class Index extends Component {
 
     initialize()
 
-    try {
-      const res = Taro.getSystemInfoSync()
-      Taro.setStorage({ key: 'width', data: res.windowWidth })
-      Taro.setStorage({ key: 'height', data: res.windowHeight })
-    } catch (e) {
-      console.log(e)
-    }
+    const res = Taro.getSystemInfoSync()
+    Taro.setStorage({ key: 'width', data: res.windowWidth })
+    Taro.setStorage({ key: 'height', data: res.windowHeight })
   }
 
   componentDidShow() {
-    try {
-      const res = Taro.getSystemInfoSync()
-      Taro.setStorage({ key: 'width', data: res.windowWidth })
-      Taro.setStorage({ key: 'height', data: res.windowHeight })
-    } catch (e) {
-      console.log(e)
-    }
-
-    // getUserInfomation()
+    const res = Taro.getSystemInfoSync()
+    Taro.setStorage({ key: 'width', data: res.windowWidth })
+    Taro.setStorage({ key: 'height', data: res.windowHeight })
 
     initialize()
+    getUserInfomation()
 
     // getPrivateTemplate()
 
