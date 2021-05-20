@@ -32,7 +32,7 @@ export class TempalteImg extends Component {
                                 Taro.setStorage({ key: 'templatePath', data: templateInfo[i]['templatePath'] })
                                 this.props.click(templateInfo[i]['templatePath'], templateInfo[i])
                             }
-                            else{
+                            else {
                                 Taro.showToast({
                                     title: '模型尚未训练完成，请稍后再试',
                                     icon: 'none'
@@ -118,11 +118,7 @@ export class ChooseTemplate extends Component {
         super(props);
         this.state = {
             show: false,
-            templateInfo: {
-                templateName: 'test',
-                authorName: 'Udnie, Young American Girl',
-                templateDesc: '我的爸爸'
-            },
+            templateInfo: null,
             templateModalShow: false,
             userTemplateModalShow: false,
             userTemplatePath: '',
@@ -254,39 +250,38 @@ export class ChooseTemplate extends Component {
                                 })
                                 return
                             }
-                            // Taro.uploadFile({
-                            //     url: 'http://127.0.0.1:8000/train',
-                            //     filePath: this.state.userTemplatePath,
-                            //     name: 'userTemplate',
-                            //     formData: {
-                            //         templateName: this.state.userTemplateTitle,
-                            //         templateDesc: this.state.userTemplateDesc,
-                            //         userID: Taro.getStorageSync('userID'),
-                            //         userName: Taro.getStorageSync('userName'),
-                            //     },
-                            //     success: (res) => {
-                            //         if (!res.data.accept) {
-                            //             Taro.showToast({
-                            //                 title: '上传次数达到上限',
-                            //                 icon: 'none'
-                            //             })
-                            //         }
-                            //         else{
-                            //             //下面的代码
-                            //         }
-                            //     },
-                            //     fail: () => {
-                            //         Taro.showToast({
-                            //             title: '上传失败',
-                            //             icon: 'none'
-                            //         })
-                            //     }
-                            // })
-                            console.log(this.state.userTemplateTitle)
-                            console.log(this.state.userTemplateDesc)
-                            Taro.showToast({
-                                title: '上传成功',
-                                icon: 'success'
+                            Taro.uploadFile({
+                                url: 'http://127.0.0.1:8000/train',
+                                filePath: this.state.userTemplatePath,
+                                name: 'picPath',
+                                formData: {
+                                    templateName: this.state.userTemplateTitle,
+                                    templateDesc: this.state.userTemplateDesc,
+                                    userID: Taro.getStorageSync('userID'),
+                                    userName: Taro.getStorageSync('userName'),
+                                },
+                                success: (res) => {
+                                    console.log(res);
+                                    var accept = Boolean(res.data)
+                                    if (!accept) {
+                                        Taro.showToast({
+                                            title: '上传次数达到上限',
+                                            icon: 'none'
+                                        })
+                                    }
+                                    else {
+                                        Taro.showToast({
+                                            title: '上传成功',
+                                            icon: 'success'
+                                        })
+                                    }
+                                },
+                                fail: () => {
+                                    Taro.showToast({
+                                        title: '上传失败',
+                                        icon: 'none'
+                                    })
+                                }
                             })
                             this.setState({
                                 userTemplateModalShow: false,

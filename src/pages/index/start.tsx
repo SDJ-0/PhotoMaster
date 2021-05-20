@@ -10,7 +10,8 @@ export class Start extends Component {
         super(props);
         this.state = {
             outPath: '',
-            outShow: false
+            outShow: false,
+            processing: false
         }
     }
 
@@ -28,10 +29,16 @@ export class Start extends Component {
             })
             return
         }
-        console.log('userImagePath', userImagePath)
-        console.log('templateID', templateID)
         console.log('userID', userID)
         // 上传用户图片
+        if (this.state.processing) {
+            Taro.showToast({
+                title: '请耐心等待结果^_^',
+                icon: 'none'
+            })
+            return
+        }
+        this.setState({ processing: true })
         Taro.uploadFile({
             url: 'http://127.0.0.1:8000/transfer/',
             filePath: userImagePath,
@@ -41,7 +48,6 @@ export class Start extends Component {
                 // userID: Taro.getStorageSync('userID'),
                 userID: 'test',
             },
-            timeout: 100000,
             success: (res) => {
                 console.log(res)
                 if (res.data == '') {
@@ -49,6 +55,8 @@ export class Start extends Component {
                         title: '使用次数到达上限',
                         icon: 'none'
                     })
+                    this.setState({ processing: false })
+                    return
                 }
                 Taro.downloadFile({
                     url: res.data,
@@ -61,7 +69,7 @@ export class Start extends Component {
                         }
                         console.log('download success')
                         Taro.setStorage({ key: "templateID", data: null })
-
+                        this.setState({ processing: false })
                     },
                     fail: () => {
                         Taro.showToast({
@@ -69,7 +77,7 @@ export class Start extends Component {
                             icon: 'none'
                         })
                         Taro.setStorage({ key: "templateID", data: null })
-
+                        this.setState({ processing: false })
                     }
                 })
             }

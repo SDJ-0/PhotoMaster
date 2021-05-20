@@ -57,29 +57,29 @@ function getUserInfomation() {
   })
 
 
-  // Taro.login({
-  //   success(res) {
-  //     if (res.code) {
-  //       //发起网络请求
-  //       Taro.request({
-  //         url: '',
-  //         data: {
-  //           code: res.code
-  //         },
-  //         success: (res1) => {
-  //           Taro.setStorage({ key: 'userID', data: res1.code })
-  //           Taro.showToast({ title: '登陆成功！', icon: "success" })
-  //         },
-  //         fail: () => {
-  //           Taro.setStorage({ key: 'userID', data: null })
-  //           Taro.showToast({ title: '登陆失败！', icon: "none" })
-  //         }
-  //       })
-  //     } else {
-  //       console.log('登录失败！' + res.errMsg)
-  //     }
-  //   }
-  // })
+  Taro.login({
+    success(res) {
+      if (res.code) {
+        //发起网络请求
+        Taro.request({
+          url: 'http://127.0.0.1:8000/login/',
+          data: {
+            code: res.code
+          },
+          success: (res1) => {
+            Taro.setStorage({ key: 'userID', data: res1.code })
+            Taro.showToast({ title: '登陆成功！', icon: "success" })
+          },
+          fail: () => {
+            Taro.setStorage({ key: 'userID', data: null })
+            Taro.showToast({ title: '登陆失败！', icon: "none" })
+          }
+        })
+      } else {
+        console.log('登录失败！' + res.errMsg)
+      }
+    }
+  })
 }
 
 
