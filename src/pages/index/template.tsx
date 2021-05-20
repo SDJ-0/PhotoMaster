@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { ScrollView, View } from '@tarojs/components'
-import Taro, { getStorageSync, render } from '@tarojs/taro';
+import Taro, { getStorageSync, render, usePullDownRefresh } from '@tarojs/taro';
 import { ClTabs, ClButton, ClFlex, ClCard, ClText, ClIcon, ClTextarea, ClModal, ClInput, ClAvatar, ClGrid } from "mp-colorui";
 import { AtCard, AtDrawer, AtImagePicker, AtTabs, AtTabsPane, AtInput, AtTextarea } from 'taro-ui';
 import './index.scss'
@@ -11,17 +11,142 @@ export class TempalteImg extends Component {
         super(props);
         this.state = {
             show: false,
-            type: props.type
+            trigger: false,
+            type: props.type,
+        }
+    }
+
+    // 获取用户模板信息
+    getPrivateTemplate() {
+        let that = this
+        that.setState({ trigger: true })
+        Taro.request({
+            url: 'http://127.0.0.1:8000/usertemplate/',
+            data: { userID: Taro.getStorageSync('userID') },
+            method: "GET",
+            dataType: 'json',
+            success: function (res) {
+                if (res.statusCode === 200) {
+                    var ps = [new Promise((resolve, reject) => { })];
+                    ps.pop();
+                    let info = [];
+                    for (var i = 0; i < res.data.length; i++) {
+                        var parse = {};
+                        var item = res.data[i];
+                        parse['templateID'] = item.pk;
+                        parse['templateName'] = item.fields.name;
+                        parse['authorName'] = item.fields.user_nickname;
+                        parse['templateDesc'] = item.fields.desc;
+                        parse['templateURL'] = item.fields.pic_path;
+                        parse['templateState'] = item.fields.is_available;
+                        info.push(parse);
+                    }
+                    let memory = [];
+                    info.array.forEach(element => {
+                        ps.push(new Promise((resolve, reject) => {
+                            let tmp = element
+                            Taro.downloadFile({
+                                url: element['templateURL'],
+                                success: function (res) {
+                                    if (res.statusCode === 200) {
+                                        tmp['templatePath'] = res.tempFilePath;
+                                        memory.push(tmp);
+                                        resolve('success');
+                                    }
+                                    else {
+                                        reject('fail to download private picture');
+                                    }
+                                },
+                                fail: () => { reject('fail to get private url') }
+                            })
+                        }))
+                    });
+                    Promise.all(ps).then(values => { Taro.setStorage({ key: 'privateTemplateInfo', data: memory }) })
+                        .catch(reason => { console.log(reason) })
+                        .finally(() => that.setState({ trigger: false }))
+                }
+            },
+            fail: () => {
+                Taro.showToast({ title: '获取用户模板信息失败', icon: 'none' })
+                that.setState({ trigger: false })
+            },
+        })
+    }
+
+    // 获取公共模板信息
+    getPublicTemplate() {
+        let that = this
+        that.setState({ trigger: true })
+        Taro.request({
+            url: 'http://127.0.0.1:8000/template/',
+            dataType: 'json',
+            method: "GET",
+            success: function (res) {
+                console.log(res);
+                if (res.statusCode === 200) {
+                    var ps = [new Promise((resolve, reject) => { })];
+                    ps.pop();
+                    let info = [];
+                    for (var i = 0; i < res.data.length; i++) {
+                        var parse = {};
+                        var item = res.data[i];
+                        parse['templateID'] = item.pk;
+                        parse['templateName'] = item.fields.name;
+                        parse['authorName'] = item.fields.user_nickname;
+                        parse['templateDesc'] = item.fields.desc;
+                        parse['templateURL'] = item.fields.pic_path;
+                        parse['templateState'] = item.fields.is_available;
+                        info.push(parse);
+                    }
+                    console.log(info);
+                    let memory = [];
+                    info.forEach(element => {
+                        ps.push(new Promise((resolve, reject) => {
+                            let tmp = element
+                            Taro.downloadFile({
+                                url: element['templateURL'],
+                                success: function (res) {
+                                    if (res.statusCode === 200) {
+                                        tmp['templatePath'] = res.tempFilePath;
+                                        memory.push(tmp);
+                                        resolve('success');
+                                    }
+                                    else {
+                                        reject('fail to download public picture');
+                                    }
+                                },
+                                fail: () => { reject('fail to get public url') }
+                            })
+                        }))
+                    });
+                    Promise.all(ps).then(values => { Taro.setStorage({ key: 'publicTemplateInfo', data: memory }) })
+                        .catch(reason => { console.log(reason) })
+                        .finally(() => that.setState({ trigger: false }))
+                }
+            },
+            fail: () => {
+                Taro.showToast({ title: '获取公共模板信息失败', icon: 'none' })
+                that.setState({ trigger: false })
+            }
+        })
+    }
+
+    refresh() {
+        if (this.state.type === 'public') {
+            this.getPublicTemplate()
+        }
+        else {
+            this.getPrivateTemplate()
         }
     }
 
     render() {
-        let publicTemplate = [<br />]
-        publicTemplate.pop()
+        let templateList = [<br />]
+        templateList.pop()
         let templateInfo = Taro.getStorageSync(this.state.type + 'TemplateInfo')
         let templateNum = templateInfo.length
         for (let i = 0; i < templateNum; i++) {
-            publicTemplate.push(
+            templateList.push(
                 <View className='template-card'>
                     <image
                         src={templateInfo[i]['templatePath']}
@@ -73,9 +198,12 @@ export class TempalteImg extends Component {
                 scrollY
                 scrollWithAnimation
                 style={scrollStyle}
+                refresherEnabled
+                refresherTriggered={this.state.trigger}
+                onRefresherRefresh={this.refresh.bind(this)}
             >
                 <ClFlex wrap={true} justify="between">
-                    {publicTemplate}
+                    {templateList}
                 </ClFlex>
             </ScrollView>
         )
@@ -255,7 +383,7 @@ export class ChooseTemplate extends Component {
                                 return
                             }
                             Taro.uploadFile({
-                                url: 'http://127.0.0.1:8000/train',
+                                url: 'http://127.0.0.1:8000/train/',
                                 filePath: this.state.userTemplatePath,
                                 name: 'picPath',
                                 formData: {

@@ -21,8 +21,7 @@ function initialize() {
   })
 }
 
-
-function getUserInfomation() {
+function getAuthorize() {
   Taro.getSetting({
     success: function (res) {
       if (!res.authSetting['scope.writePhotosAlbum']) {
@@ -37,9 +36,23 @@ function getUserInfomation() {
           }
         })
       }
+      if (!res.authSetting['scope.userInfo']) {
+        Taro.authorize({
+          scope: 'scope.userInfo',
+          success: () => {
+            Taro.showToast({
+              title: '授权成功',
+              icon: 'success',
+              duration: 2000
+            })
+          }
+        })
+      }
     }
   })
+}
 
+function getUserInfomation() {
   Taro.getStorage({
     key: 'userName',
     fail: () => Taro.getUserInfo({
@@ -67,8 +80,29 @@ function getUserInfomation() {
             code: res.code
           },
           success: (res1) => {
-            Taro.setStorage({ key: 'userID', data: res1.code })
-            Taro.showToast({ title: '登陆成功！', icon: "success" })
+            Taro.getUserInfo({
+              success: function (res2) {
+                Taro.request({
+                  url: 'http://127.0.0.1:8000/login/',
+                  data: {
+                    iv: res2.iv,
+                    ed: res2.encryptedData,
+                    session_key: res1.data
+                  },
+                  success: (res3) => {
+                    Taro.setStorage({ key: 'userID', data: res3.code })
+                    Taro.showToast({ title: '登陆成功！', icon: "success" })
+                  }
+                })
+              },
+              fail: () => {
+                Taro.showToast({
+                  title: '获取用户信息失败',
+                  icon: 'none'
+                })
+                getAuthorize()
+              }
+            })
           },
           fail: () => {
             Taro.setStorage({ key: 'userID', data: null })
@@ -84,7 +118,7 @@ function getUserInfomation() {
 
 
 // 获取用户模板信息
-function getPrivateTemplate() {
+export function getPrivateTemplate() {
   Taro.request({
     url: 'http://127.0.0.1:8000/usertemplate/',
     data: { userID: Taro.getStorageSync('userID') },
@@ -135,7 +169,7 @@ function getPrivateTemplate() {
 }
 
 // 获取公共模板信息
-function getPublicTemplate() {
+export function getPublicTemplate() {
   Taro.request({
     url: 'http://127.0.0.1:8000/template/',
     dataType: 'json',
@@ -193,20 +227,23 @@ export default class Index extends Component {
   }
 
   onLaunch() {
+    getAuthorize()
+
     getUserInfomation()
 
     initialize()
 
-    
+
 
     const res = Taro.getSystemInfoSync()
     Taro.setStorage({ key: 'width', data: res.windowWidth })
     Taro.setStorage({ key: 'height', data: res.windowHeight })
-    Taro.setStorage({ key: 'publucTemplateInfp', data: [] })
-    Taro.setStorage({ key: 'privateTemplateInfp', data: [] })
+    Taro.setStorage({ key: 'publucTemplateInfo', data: [] })
+    Taro.setStorage({ key: 'privateTemplateInfo', data: [] })
   }
 
   componentDidShow() {
+    getAuthorize()
     const res = Taro.getSystemInfoSync()
     Taro.setStorage({ key: 'width', data: res.windowWidth })
     Taro.setStorage({ key: 'height', data: res.windowHeight })
