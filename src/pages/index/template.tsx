@@ -261,7 +261,8 @@ export class ChooseTemplate extends Component {
                                 formData: {
                                     templateName: this.state.userTemplateTitle,
                                     templateDesc: this.state.userTemplateDesc,
-                                    userID: Taro.getStorageSync('userID'),
+                                    // userID: Taro.getStorageSync('userID'),
+                                    userID: 'test',
                                     userName: Taro.getStorageSync('userName'),
                                 },
                                 success: (res) => {

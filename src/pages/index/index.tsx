@@ -197,9 +197,13 @@ export default class Index extends Component {
 
     initialize()
 
+    
+
     const res = Taro.getSystemInfoSync()
     Taro.setStorage({ key: 'width', data: res.windowWidth })
     Taro.setStorage({ key: 'height', data: res.windowHeight })
+    Taro.setStorage({ key: 'publucTemplateInfp', data: [] })
+    Taro.setStorage({ key: 'privateTemplateInfp', data: [] })
   }
 
   componentDidShow() {
