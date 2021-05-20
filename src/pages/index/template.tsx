@@ -22,7 +22,8 @@ export class TempalteImg extends Component {
         that.setState({ trigger: true })
         Taro.request({
             url: 'http://127.0.0.1:8000/usertemplate/',
-            data: { userID: Taro.getStorageSync('userID') },
+            // data: { userID: Taro.getStorageSync('userID') },
+            data: { userID: 'test' },
             method: "GET",
             dataType: 'json',
             success: function (res) {
