@@ -89,6 +89,7 @@ function getUserInfomation() {
                     ed: res2.encryptedData,
                     session_key: res1.data
                   },
+                  method: 'POST',
                   success: (res3) => {
                     Taro.setStorage({ key: 'userID', data: res3.code })
                     Taro.showToast({ title: '登陆成功！', icon: "success" })
@@ -142,7 +143,7 @@ export function getPrivateTemplate() {
           info.push(parse);
         }
         let memory = [];
-        info.array.forEach(element => {
+        info.forEach(element => {
           ps.push(new Promise((resolve, reject) => {
             let tmp = element
             Taro.downloadFile({

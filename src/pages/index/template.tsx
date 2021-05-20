@@ -43,7 +43,7 @@ export class TempalteImg extends Component {
                         info.push(parse);
                     }
                     let memory = [];
-                    info.array.forEach(element => {
+                    info.forEach(element => {
                         ps.push(new Promise((resolve, reject) => {
                             let tmp = element
                             Taro.downloadFile({
