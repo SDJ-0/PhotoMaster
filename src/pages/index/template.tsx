@@ -118,7 +118,11 @@ export class ChooseTemplate extends Component {
         super(props);
         this.state = {
             show: false,
-            templateInfo: null,
+            templateInfo: {
+                templateName: '',
+                authorName: '',
+                templateDesc: ''
+            },
             templateModalShow: false,
             userTemplateModalShow: false,
             userTemplatePath: '',
