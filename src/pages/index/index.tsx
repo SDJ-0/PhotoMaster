@@ -251,9 +251,9 @@ export default class Index extends Component {
     Taro.setStorage({ key: 'height', data: res.windowHeight })
 
     initialize()
-    getUserInfomation()
+    // getUserInfomation()
 
-    // getPrivateTemplate()
+    getPrivateTemplate()
 
     getPublicTemplate()
   }
