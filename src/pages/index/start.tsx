@@ -29,7 +29,11 @@ export class Start extends Component {
             })
             return
         }
-        console.log('userID', userID)
+        // console.log('userID', userID)
+        Taro.showToast({
+            title: "开始生成！",
+            icon: "success"
+        })
         // 上传用户图片
         if (this.state.processing) {
             Taro.showToast({
@@ -49,7 +53,8 @@ export class Start extends Component {
                 userID: 'test',
             },
             success: (res) => {
-                console.log(res)
+                let that = this
+                // console.log(res)
                 if (res.data == '') {
                     Taro.showToast({
                         title: '使用次数到达上限',
@@ -69,7 +74,7 @@ export class Start extends Component {
                         }
                         console.log('download success')
                         Taro.setStorage({ key: "templateID", data: null })
-                        this.setState({ processing: false })
+                        that.setState({ processing: false })
                     },
                     fail: () => {
                         Taro.showToast({
@@ -77,7 +82,7 @@ export class Start extends Component {
                             icon: 'none'
                         })
                         Taro.setStorage({ key: "templateID", data: null })
-                        this.setState({ processing: false })
+                        that.setState({ processing: false })
                     }
                 })
             }

@@ -61,7 +61,7 @@ function getUserInfomation() {
         var nickName = userInfo.nickName
         Taro.setStorage({ key: 'userName', data: nickName })
         console.log('get user info success')
-        console.log(res)
+        // console.log(res)
       },
       fail: (res) => {
         console.log(res.errMsg)
@@ -177,7 +177,7 @@ export function getPublicTemplate() {
     dataType: 'json',
     method: "GET",
     success: function (res) {
-      console.log(res);
+      // console.log(res);
       if (res.statusCode === 200) {
         var ps = [new Promise((resolve, reject) => { })];
         ps.pop();
@@ -193,7 +193,7 @@ export function getPublicTemplate() {
           parse['templateState'] = item.fields.is_available;
           info.push(parse);
         }
-        console.log(info);
+        // console.log(info);
         let memory = [];
         info.forEach(element => {
           ps.push(new Promise((resolve, reject) => {
@@ -245,7 +245,7 @@ export default class Index extends Component {
   }
 
   componentDidShow() {
-    getAuthorize()
+    // getAuthorize()
     const res = Taro.getSystemInfoSync()
     Taro.setStorage({ key: 'width', data: res.windowWidth })
     Taro.setStorage({ key: 'height', data: res.windowHeight })
@@ -259,7 +259,7 @@ export default class Index extends Component {
   }
 
   setUserImage(res, path) {
-    console.log(res, path)
+    // console.log(res, path)
     this.setState({ userImagePath: path })
   }
 

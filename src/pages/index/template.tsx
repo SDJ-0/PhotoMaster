@@ -83,7 +83,7 @@ export class TempalteImg extends Component {
             dataType: 'json',
             method: "GET",
             success: function (res) {
-                console.log(res);
+                // console.log(res);
                 if (res.statusCode === 200) {
                     var ps = [new Promise((resolve, reject) => { })];
                     ps.pop();
@@ -99,7 +99,7 @@ export class TempalteImg extends Component {
                         parse['templateState'] = item.fields.is_available;
                         info.push(parse);
                     }
-                    console.log(info);
+                    // console.log(info);
                     let memory = [];
                     info.forEach(element => {
                         ps.push(new Promise((resolve, reject) => {
@@ -395,7 +395,7 @@ export class ChooseTemplate extends Component {
                                     userName: Taro.getStorageSync('userName'),
                                 },
                                 success: (res) => {
-                                    console.log(res);
+                                    // console.log(res);
                                     var accept = Boolean(res.data)
                                     if (!accept) {
                                         Taro.showToast({
