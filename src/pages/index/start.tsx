@@ -20,7 +20,7 @@ export class Start extends Component {
         let that = this
         let userImagePath = Taro.getStorageSync('userImagePath')
         let templateID = Taro.getStorageSync('templateID')
-        let userID = Taro.getStorageSync('userID')
+        console.log(Taro.getStorageSync('userID'));
         if (userImagePath === null || templateID === null) {
             Taro.showToast({
                 title: '请选择图片及模板！',
@@ -44,17 +44,17 @@ export class Start extends Component {
         }
         this.setState({ processing: true })
         Taro.uploadFile({
-            url: 'http://127.0.0.1:8000/transfer/',
+            url: 'https://photomaster.ziqiang.net.cn/transfer/',
             filePath: userImagePath,
             name: 'img',
             formData: {
                 templateID: Taro.getStorageSync('templateID'),
-                // userID: Taro.getStorageSync('userID'),
-                userID: 'test',
+                userID: Taro.getStorageSync('userID'),
+                // userID: 'test',
             },
             success: (res) => {
                 let that = this
-                // console.log(res)
+                console.log(res)
                 if (res.data == '') {
                     Taro.showToast({
                         title: '使用次数到达上限',
@@ -66,6 +66,7 @@ export class Start extends Component {
                 Taro.downloadFile({
                     url: res.data,
                     success: function (res) {
+                        // console.log(res);
                         if (res.statusCode === 200) {
                             that.setState({
                                 outPath: res.tempFilePath,

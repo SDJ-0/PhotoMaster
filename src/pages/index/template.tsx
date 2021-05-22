@@ -21,9 +21,9 @@ export class TempalteImg extends Component {
         let that = this
         that.setState({ trigger: true })
         Taro.request({
-            url: 'http://127.0.0.1:8000/usertemplate/',
-            // data: { userID: Taro.getStorageSync('userID') },
-            data: { userID: 'test' },
+            url: 'https://photomaster.ziqiang.net.cn/usertemplate/',
+            data: { userID: Taro.getStorageSync('userID') },
+            // data: { userID: 'test' },
             method: "GET",
             dataType: 'json',
             success: function (res) {
@@ -79,7 +79,7 @@ export class TempalteImg extends Component {
         let that = this
         that.setState({ trigger: true })
         Taro.request({
-            url: 'http://127.0.0.1:8000/template/',
+            url: 'https://photomaster.ziqiang.net.cn/template/',
             dataType: 'json',
             method: "GET",
             success: function (res) {
@@ -384,14 +384,14 @@ export class ChooseTemplate extends Component {
                                 return
                             }
                             Taro.uploadFile({
-                                url: 'http://127.0.0.1:8000/train/',
+                                url: 'https://photomaster.ziqiang.net.cn/train/',
                                 filePath: this.state.userTemplatePath,
                                 name: 'picPath',
                                 formData: {
                                     templateName: this.state.userTemplateTitle,
                                     templateDesc: this.state.userTemplateDesc,
-                                    // userID: Taro.getStorageSync('userID'),
-                                    userID: 'test',
+                                    userID: Taro.getStorageSync('userID'),
+                                    // userID: 'test',
                                     userName: Taro.getStorageSync('userName'),
                                 },
                                 success: (res) => {

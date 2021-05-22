@@ -28,11 +28,11 @@ function getAuthorize() {
         Taro.authorize({
           scope: 'scope.writePhotosAlbum',
           success: () => {
-            Taro.showToast({
-              title: '授权成功',
-              icon: 'success',
-              duration: 2000
-            })
+            // Taro.showToast({
+            //   title: '授权成功',
+            //   icon: 'success',
+            //   duration: 2000
+            // })
           }
         })
       }
@@ -40,11 +40,11 @@ function getAuthorize() {
         Taro.authorize({
           scope: 'scope.userInfo',
           success: () => {
-            Taro.showToast({
-              title: '授权成功',
-              icon: 'success',
-              duration: 2000
-            })
+            // Taro.showToast({
+            //   title: '授权成功',
+            //   icon: 'success',
+            //   duration: 2000
+            // })
           }
         })
       }
@@ -53,77 +53,80 @@ function getAuthorize() {
 }
 
 function getUserInfomation() {
-  Taro.getStorage({
-    key: 'userName',
-    fail: () => Taro.getUserInfo({
-      success: function (res) {
-        var userInfo = res.userInfo
-        var nickName = userInfo.nickName
-        Taro.setStorage({ key: 'userName', data: nickName })
-        console.log('get user info success')
-        // console.log(res)
-      },
-      fail: (res) => {
-        console.log(res.errMsg)
+  if (!Taro.getStorageSync('login')) {
+    Taro.getStorage({
+      key: 'userName',
+      fail: () => Taro.getUserInfo({
+        success: function (res) {
+          var userInfo = res.userInfo
+          var nickName = userInfo.nickName
+          Taro.setStorage({ key: 'userName', data: nickName })
+          console.log('get user info success')
+          // console.log(res)
+        },
+        fail: (res) => {
+          console.log(res.errMsg)
+        }
+      })
+    })
+
+
+    Taro.login({
+      success(res) {
+        if (res.code) {
+          //发起网络请求
+          Taro.request({
+            url: 'https://photomaster.ziqiang.net.cn/login/',
+            data: {
+              code: res.code
+            },
+            success: (res1) => {
+              Taro.getUserInfo({
+                success: function (res2) {
+                  Taro.request({
+                    url: 'https://photomaster.ziqiang.net.cn/login/',
+                    data: {
+                      iv: res2.iv,
+                      ed: res2.encryptedData,
+                      session_key: res1.data
+                    },
+                    method: 'POST',
+                    success: (res3) => {
+                      Taro.setStorage({ key: 'userID', data: res3.data.openId })
+                      Taro.showToast({ title: '登陆成功！', icon: "success" })
+                      Taro.setStorage({ key: 'login', data: true })
+                    }
+                  })
+                },
+                fail: () => {
+                  Taro.showToast({
+                    title: '获取用户信息失败',
+                    icon: 'none'
+                  })
+                  getAuthorize()
+                }
+              })
+            },
+            fail: () => {
+              Taro.setStorage({ key: 'userID', data: null })
+              Taro.showToast({ title: '登陆失败！', icon: "none" })
+            }
+          })
+        } else {
+          console.log('登录失败！' + res.errMsg)
+        }
       }
     })
-  })
-
-
-  Taro.login({
-    success(res) {
-      if (res.code) {
-        //发起网络请求
-        Taro.request({
-          url: 'http://127.0.0.1:8000/login/',
-          data: {
-            code: res.code
-          },
-          success: (res1) => {
-            Taro.getUserInfo({
-              success: function (res2) {
-                Taro.request({
-                  url: 'http://127.0.0.1:8000/login/',
-                  data: {
-                    iv: res2.iv,
-                    ed: res2.encryptedData,
-                    session_key: res1.data
-                  },
-                  method: 'POST',
-                  success: (res3) => {
-                    Taro.setStorage({ key: 'userID', data: res3.code })
-                    Taro.showToast({ title: '登陆成功！', icon: "success" })
-                  }
-                })
-              },
-              fail: () => {
-                Taro.showToast({
-                  title: '获取用户信息失败',
-                  icon: 'none'
-                })
-                getAuthorize()
-              }
-            })
-          },
-          fail: () => {
-            Taro.setStorage({ key: 'userID', data: null })
-            Taro.showToast({ title: '登陆失败！', icon: "none" })
-          }
-        })
-      } else {
-        console.log('登录失败！' + res.errMsg)
-      }
-    }
-  })
+  }
 }
 
 
 // 获取用户模板信息
 export function getPrivateTemplate() {
   Taro.request({
-    url: 'http://127.0.0.1:8000/usertemplate/',
-    // data: { userID: Taro.getStorageSync('userID') },
-    data: { userID: 'test' },
+    url: 'https://photomaster.ziqiang.net.cn/usertemplate/',
+    data: { userID: Taro.getStorageSync('userID') },
+    // data: { userID: 'test' },
     method: "GET",
     dataType: 'json',
     success: function (res) {
@@ -173,7 +176,7 @@ export function getPrivateTemplate() {
 // 获取公共模板信息
 export function getPublicTemplate() {
   Taro.request({
-    url: 'http://127.0.0.1:8000/template/',
+    url: 'https://photomaster.ziqiang.net.cn/template/',
     dataType: 'json',
     method: "GET",
     success: function (res) {
@@ -229,13 +232,13 @@ export default class Index extends Component {
   }
 
   onLaunch() {
+    Taro.setStorage({ key: 'login', data: false })
+
     getAuthorize()
 
     getUserInfomation()
 
     initialize()
-
-
 
     const res = Taro.getSystemInfoSync()
     Taro.setStorage({ key: 'width', data: res.windowWidth })
@@ -245,17 +248,18 @@ export default class Index extends Component {
   }
 
   componentDidShow() {
-    // getAuthorize()
     const res = Taro.getSystemInfoSync()
     Taro.setStorage({ key: 'width', data: res.windowWidth })
     Taro.setStorage({ key: 'height', data: res.windowHeight })
 
-    initialize()
-    // getUserInfomation()
+    // initialize()
+    getAuthorize()
+    getUserInfomation()
 
     getPrivateTemplate()
 
     getPublicTemplate()
+
   }
 
   setUserImage(res, path) {
