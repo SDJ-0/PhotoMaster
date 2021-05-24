@@ -1,8 +1,8 @@
-import React, { Component } from 'react'
+import { Component } from 'react'
 import { ScrollView, View } from '@tarojs/components'
-import Taro, { getStorageSync, render, usePullDownRefresh } from '@tarojs/taro';
-import { ClTabs, ClButton, ClFlex, ClCard, ClText, ClIcon, ClTextarea, ClModal, ClInput, ClAvatar, ClGrid } from "mp-colorui";
-import { AtCard, AtDrawer, AtImagePicker, AtTabs, AtTabsPane, AtInput, AtTextarea } from 'taro-ui';
+import Taro from '@tarojs/taro';
+import { ClButton, ClFlex, ClCard, ClText, ClModal, ClInput } from "mp-colorui";
+import { AtDrawer, AtTabs, AtTabsPane, AtTextarea } from 'taro-ui';
 import './index.scss'
 
 export class TempalteImg extends Component {
@@ -149,48 +149,32 @@ export class TempalteImg extends Component {
         for (let i = 0; i < templateNum; i++) {
             templateList.push(
                 <View className='template-card'>
-                    <image
-                        src={templateInfo[i]['templatePath']}
-                        mode='aspectFit'
-                        onClick={() => {
-                            if (templateInfo[i]['templateState']) {
-                                Taro.setStorage({ key: 'templateID', data: templateInfo[i]['templateID'] })
-                                Taro.setStorage({ key: 'templatePath', data: templateInfo[i]['templatePath'] })
-                                this.props.click(templateInfo[i]['templatePath'], templateInfo[i])
-                            }
-                            else {
-                                Taro.showToast({
-                                    title: '模型尚未训练完成，请稍后再试',
-                                    icon: 'none'
-                                })
-                            }
-                        }}
-                    />
+                    <View className='template-imgwrap'>
+                        <image
+                            src={templateInfo[i]['templatePath']}
+                            mode='aspectFit'
+                            className="template-imgbox"
+                            onClick={() => {
+                                if (templateInfo[i]['templateState']) {
+                                    Taro.setStorage({ key: 'templateID', data: templateInfo[i]['templateID'] })
+                                    Taro.setStorage({ key: 'templatePath', data: templateInfo[i]['templatePath'] })
+                                    this.props.click(templateInfo[i]['templatePath'], templateInfo[i])
+                                }
+                                else {
+                                    Taro.showToast({
+                                        title: '模型尚未训练完成，请稍后再试',
+                                        icon: 'none'
+                                    })
+                                }
+                            }}
+                        />
+                    </View>
                 </View>
             )
         }
-        // for (let i = 0; i < 5; i++) {
-        //     publicTemplate.push(
-        //         <View className='template-card'>
-        //             <image
-        //                 src={Taro.getStorageSync('userImagePath')}
-        //                 mode='aspectFit'
-        //                 onClick={() => {
-        //                     this.props.click(Taro.getStorageSync('userImagePath'),
-        //                         {
-        //                             templateName: 'Udnie, Young American Girl',
-        //                             authorName: 'Joseph William Turner',
-        //                             templateDesc: '我的爸爸英俊潇洒风流倜傥玉树临风后宫三千，全世界第一有钱'
-        //                         }
-        //                     )
-        //                 }}
-        //             />
-        //         </View>
-        //     )
-        // }
 
         const scrollStyle = {
-            height: String(Taro.getStorageSync('height') * 0.95) + 'px'
+            height: String(Taro.getSystemInfoSync().windowHeight * 0.95) + 'px'
         }
 
         return (
@@ -296,36 +280,124 @@ export class ChooseTemplate extends Component {
         Taro.setStorage({ key: 'templatePath', data: null })
     }
 
+    chooseTemplate(index) {
+        if (index === 1) {
+            Taro.showToast({
+                title: '选择成功！',
+                icon: 'success',
+                duration: 2000
+            })
+            this.setState({ templateModalShow: false })
+            this.setState({ show: false })
+        }
+        else {
+            this.cancelChoose()
+        }
+    }
+
+    editUserTemplateInfo(index) {
+        if (!Taro.getStorageSync('login')) {
+            Taro.showToast({ title: "未登录" })
+        }
+        else {
+            if (index === 1) {
+                if (this.state.userTemplateTitle == '' || this.state.userTemplateDesc == '') {
+                    Taro.showToast({
+                        title: '请输入名称及描述',
+                        icon: 'none'
+                    })
+                    return
+                }
+                Taro.uploadFile({
+                    url: 'https://photomaster.ziqiang.net.cn/train/',
+                    filePath: this.state.userTemplatePath,
+                    name: 'picPath',
+                    formData: {
+                        templateName: this.state.userTemplateTitle,
+                        templateDesc: this.state.userTemplateDesc,
+                        userID: Taro.getStorageSync('userID'),
+                        // userID: 'test',
+                        userName: Taro.getStorageSync('userName'),
+                    },
+                    success: (res) => {
+                        if (res.data === 'SysBusy') {
+                            Taro.showToast({
+                                title: "系统繁忙，请稍后再试！",
+                                icon: "none"
+                            })
+                        }
+                        else {
+                            var accept = Boolean(res.data)
+                            if (!accept) {
+                                Taro.showToast({
+                                    title: '上传次数达到上限',
+                                    icon: 'none'
+                                })
+                            }
+                            else {
+                                Taro.showToast({
+                                    title: '上传成功',
+                                    icon: 'success'
+                                })
+                            }
+                        }
+                    },
+                    fail: () => {
+                        Taro.showToast({
+                            title: '上传失败',
+                            icon: 'none'
+                        })
+                    }
+                })
+                this.setState({
+                    userTemplateModalShow: false,
+                    userTemplateTitle: '',
+                    userTemplateDesc: '',
+                    userTemplatePath: '',
+                })
+            }
+            else {
+                Taro.showToast({
+                    title: '取消上传',
+                    icon: 'none'
+                })
+                this.setState({
+                    userTemplateModalShow: false,
+                    userTemplateTitle: '',
+                    userTemplateDesc: '',
+                    userTemplatePath: '',
+                })
+            }
+        }
+    }
+
     render() {
         return (
             <ClCard type="full" shadow={false} bgColor='#f7ecdc'>
                 <View className="chooseButton-box">
-                    {/* <ClFlex justify="between"> */}
                     <View className='at-row at-row__justify--around at-row__align--center' >
-                        {/* <ClCard type="full" bgColor='#f7ecdc'> */}
                         <View className='at-col at-col-5'>
                             <ClFlex justify='center'>
                                 <ClButton shape="round" size="large" bgColor='yellow' plain plainSize='bold'
                                     onClick={() => { this.setState({ show: true }); }}>
                                     <ClText text="选 择 模 板" size="xlarge" align="center" textColor="orange" />
-                                </ClButton></ClFlex></View>
-                        {/* </ClCard> */}
-                        {/* <ClCard type="full" bgColor='#f7ecdc'> */}
+                                </ClButton>
+                            </ClFlex>
+                        </View>
                         <View className='at-col at-col-5'>
                             <ClFlex justify='center'>
                                 <ClButton shape="round" size="large" bgColor='yellow' plain plainSize='bold'
                                     onClick={this.uploadTemplate.bind(this)}>
                                     <ClText text="上 传 模 板" size="xlarge" align="center" textColor="orange" />
-                                </ClButton></ClFlex></View>
-                        {/* </ClCard> */}
+                                </ClButton>
+                            </ClFlex>
+                        </View>
                     </View>
                 </View>
-                {/* </ClFlex> */}
                 <AtDrawer
                     show={this.state.show}
                     onClose={() => { this.setState({ show: false }); }}
-                    // width={String(Taro.getStorageSync('width') * 0.6) + 'px'}
-                    width='267px'>
+                    width='280px'>
                     <Templates click={(src, info) => this.showModal(src, info)} />
                 </AtDrawer>
                 <ClModal
@@ -339,23 +411,7 @@ export class ChooseTemplate extends Component {
                     ]}
                     onCancel={() => { this.cancelChoose() }}
                     onClose={() => { this.cancelChoose() }}
-                    onClick={index => {
-                        if (index === 1) {
-                            Taro.showToast({
-                                title: '选择成功！',
-                                icon: 'success',
-                                duration: 2000
-                            })
-                            this.setState({ templateModalShow: false })
-                        }
-                        else {
-                            Taro.showToast({
-                                title: '取消',
-                                icon: 'none'
-                            })
-                            this.cancelChoose()
-                        }
-                    }}
+                    onClick={index => { this.chooseTemplate(index) }}
                 >
                     <image src={this.state.src} mode='aspectFit' />
                     <ClCard>
@@ -374,69 +430,7 @@ export class ChooseTemplate extends Component {
                     ]}
                     onCancel={() => { this.setState({ userTemplateModalShow: false }) }}
                     onClose={() => { this.setState({ userTemplateModalShow: false }) }}
-                    onClick={index => {
-                        if (index === 1) {
-                            if (this.state.userTemplateTitle == '' || this.state.userTemplateDesc == '') {
-                                Taro.showToast({
-                                    title: '请输入名称及描述',
-                                    icon: 'none'
-                                })
-                                return
-                            }
-                            Taro.uploadFile({
-                                url: 'https://photomaster.ziqiang.net.cn/train/',
-                                filePath: this.state.userTemplatePath,
-                                name: 'picPath',
-                                formData: {
-                                    templateName: this.state.userTemplateTitle,
-                                    templateDesc: this.state.userTemplateDesc,
-                                    userID: Taro.getStorageSync('userID'),
-                                    // userID: 'test',
-                                    userName: Taro.getStorageSync('userName'),
-                                },
-                                success: (res) => {
-                                    // console.log(res);
-                                    var accept = Boolean(res.data)
-                                    if (!accept) {
-                                        Taro.showToast({
-                                            title: '上传次数达到上限',
-                                            icon: 'none'
-                                        })
-                                    }
-                                    else {
-                                        Taro.showToast({
-                                            title: '上传成功',
-                                            icon: 'success'
-                                        })
-                                    }
-                                },
-                                fail: () => {
-                                    Taro.showToast({
-                                        title: '上传失败',
-                                        icon: 'none'
-                                    })
-                                }
-                            })
-                            this.setState({
-                                userTemplateModalShow: false,
-                                userTemplateTitle: '',
-                                userTemplateDesc: '',
-                                userTemplatePath: '',
-                            })
-                        }
-                        else {
-                            Taro.showToast({
-                                title: '取消上传',
-                                icon: 'none'
-                            })
-                            this.setState({
-                                userTemplateModalShow: false,
-                                userTemplateTitle: '',
-                                userTemplateDesc: '',
-                                userTemplatePath: '',
-                            })
-                        }
-                    }}
+                    onClick={index => { this.editUserTemplateInfo(index) }}
                 >
                     <image src={this.state.userTemplatePath} mode='aspectFit' />
                     <View className='input-box'>

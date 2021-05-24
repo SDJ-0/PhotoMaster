@@ -1,8 +1,6 @@
-import React, { Component } from 'react'
-import { ScrollView, View } from '@tarojs/components'
-import Taro, { getStorageSync, render } from '@tarojs/taro';
-import { ClTabs, ClButton, ClFlex, ClCard, ClText, ClIcon, ClModal, ClFloatButton, ClAvatar, ClGrid } from "mp-colorui";
-import { AtCard, AtDrawer, AtImagePicker, AtTabs, AtTabsPane } from 'taro-ui';
+import { Component } from 'react'
+import Taro from '@tarojs/taro';
+import { ClButton, ClCard, ClText, ClModal } from "mp-colorui";
 import './index.scss'
 
 export class Start extends Component {
@@ -18,76 +16,85 @@ export class Start extends Component {
 
     start() {
         let that = this
-        let userImagePath = Taro.getStorageSync('userImagePath')
-        let templateID = Taro.getStorageSync('templateID')
-        console.log(Taro.getStorageSync('userID'));
-        if (userImagePath === null || templateID === null) {
+        if (!Taro.getStorageSync('login')) {
             Taro.showToast({
-                title: '请选择图片及模板！',
-                icon: 'none',
-                duration: 2000
+                title: "未登录！",
+                icon: "none"
             })
             return
         }
-        // console.log('userID', userID)
-        Taro.showToast({
-            title: "开始生成！",
-            icon: "success"
-        })
-        // 上传用户图片
-        if (this.state.processing) {
+        else {
+            let userImagePath = Taro.getStorageSync('userImagePath')
+            let templateID = Taro.getStorageSync('templateID')
+            // console.log(Taro.getStorageSync('userID'));
+            if (userImagePath === null || templateID === null) {
+                Taro.showToast({
+                    title: '请选择图片及模板！',
+                    icon: 'none',
+                    duration: 2000
+                })
+                return
+            }
+            // console.log('userID', userID)
             Taro.showToast({
-                title: '请耐心等待结果^_^',
-                icon: 'none'
+                title: "开始生成！请耐心等待结果",
+                icon: "none"
             })
-            return
-        }
-        this.setState({ processing: true })
-        Taro.uploadFile({
-            url: 'https://photomaster.ziqiang.net.cn/transfer/',
-            filePath: userImagePath,
-            name: 'img',
-            formData: {
-                templateID: Taro.getStorageSync('templateID'),
-                userID: Taro.getStorageSync('userID'),
-                // userID: 'test',
-            },
-            success: (res) => {
-                let that = this
-                console.log(res)
-                if (res.data == '') {
-                    Taro.showToast({
-                        title: '使用次数到达上限',
-                        icon: 'none'
-                    })
-                    this.setState({ processing: false })
-                    return
-                }
-                Taro.downloadFile({
-                    url: res.data,
-                    success: function (res) {
-                        // console.log(res);
-                        if (res.statusCode === 200) {
-                            that.setState({
-                                outPath: res.tempFilePath,
-                                outShow: true
-                            })
-                        }
-                        console.log('download success')
-                        Taro.setStorage({ key: "templateID", data: null })
-                        that.setState({ processing: false })
-                    },
-                    fail: () => {
+            // 上传用户图片
+            if (this.state.processing) {
+                Taro.showToast({
+                    title: '请耐心等待结果^_^',
+                    icon: 'none'
+                })
+                return
+            }
+            this.setState({ processing: true })
+            Taro.uploadFile({
+                url: 'https://photomaster.ziqiang.net.cn/transfer/',
+                filePath: userImagePath,
+                name: 'img',
+                formData: {
+                    templateID: Taro.getStorageSync('templateID'),
+                    userID: Taro.getStorageSync('userID'),
+                    // userID: 'test',
+                },
+                success: (res) => {
+                    let that = this
+                    // console.log(res)
+                    if (res.data == '') {
                         Taro.showToast({
-                            title: '下载失败',
+                            title: '使用次数到达上限',
                             icon: 'none'
                         })
-                        Taro.setStorage({ key: "templateID", data: null })
-                        that.setState({ processing: false })
+                        this.setState({ processing: false })
+                        return
                     }
-                })
-            }
-        })
+                    Taro.downloadFile({
+                        url: res.data,
+                        success: function (res) {
+                            // console.log(res);
+                            if (res.statusCode === 200) {
+                                that.setState({
+                                    outPath: res.tempFilePath,
+                                    outShow: true
+                                })
+                            }
+                            console.log('download success')
+                            Taro.setStorage({ key: "templateID", data: null })
+                            that.setState({ processing: false })
+                        },
+                        fail: () => {
+                            Taro.showToast({
+                                title: '下载失败',
+                                icon: 'none'
+                            })
+                            Taro.setStorage({ key: "templateID", data: null })
+                            that.setState({ processing: false })
+                        }
+                    })
+                }
+            })
+        }
     }
 
 
@@ -134,10 +141,10 @@ export class Start extends Component {
                             })
                         }
                         else {
-                            Taro.showToast({
-                                title: '取消',
-                                icon: 'none'
-                            })
+                            // Taro.showToast({
+                            //     title: '取消',
+                            //     icon: 'none'
+                            // })
                         }
                         this.clean()
                     }}

@@ -1,15 +1,11 @@
-import React, { Component } from 'react'
-import { Icon, ScrollView, View } from '@tarojs/components'
-import Taro, { getStorageSync, render } from '@tarojs/taro';
-import { ClTabs, ClButton, ClFlex, ClCard, ClText, ClIcon, ClModal, ClFloatButton, ClAvatar, ClGrid } from "mp-colorui";
-import { AtCard, AtDrawer, AtImagePicker, AtTabs, AtTabsPane } from 'taro-ui';
+import { Component } from 'react'
+import { View } from '@tarojs/components'
+import Taro from '@tarojs/taro';
 import './index.scss'
 import { ChooseTemplate } from './template'
 import { ChooseUserImage } from './userimage'
 import { Start } from './start'
 import { Help } from './help'
-
-// 选择用户图像
 
 function initialize() {
   const memory_name = ['userImagePath', 'templateID', 'templatePath']
@@ -30,8 +26,7 @@ function getAuthorize() {
           success: () => {
             // Taro.showToast({
             //   title: '授权成功',
-            //   icon: 'success',
-            //   duration: 2000
+            //   icon: 'success'
             // })
           }
         })
@@ -42,8 +37,7 @@ function getAuthorize() {
           success: () => {
             // Taro.showToast({
             //   title: '授权成功',
-            //   icon: 'success',
-            //   duration: 2000
+            //   icon: 'success'
             // })
           }
         })
@@ -61,8 +55,7 @@ function getUserInfomation() {
           var userInfo = res.userInfo
           var nickName = userInfo.nickName
           Taro.setStorage({ key: 'userName', data: nickName })
-          console.log('get user info success')
-          // console.log(res)
+          // console.log('get user info success')
         },
         fail: (res) => {
           console.log(res.errMsg)
@@ -74,38 +67,48 @@ function getUserInfomation() {
     Taro.login({
       success(res) {
         if (res.code) {
-          //发起网络请求
           Taro.request({
             url: 'https://photomaster.ziqiang.net.cn/login/',
             data: {
               code: res.code
             },
             success: (res1) => {
-              Taro.getUserInfo({
-                success: function (res2) {
-                  Taro.request({
-                    url: 'https://photomaster.ziqiang.net.cn/login/',
-                    data: {
-                      iv: res2.iv,
-                      ed: res2.encryptedData,
-                      session_key: res1.data
-                    },
-                    method: 'POST',
-                    success: (res3) => {
-                      Taro.setStorage({ key: 'userID', data: res3.data.openId })
-                      Taro.showToast({ title: '登陆成功！', icon: "success" })
-                      Taro.setStorage({ key: 'login', data: true })
-                    }
-                  })
-                },
-                fail: () => {
-                  Taro.showToast({
-                    title: '获取用户信息失败',
-                    icon: 'none'
-                  })
-                  getAuthorize()
-                }
-              })
+              if (res1.statusCode === 200) {
+                Taro.getUserInfo({
+                  success: function (res2) {
+                    Taro.request({
+                      url: 'https://photomaster.ziqiang.net.cn/login/',
+                      data: {
+                        iv: res2.iv,
+                        ed: res2.encryptedData,
+                        session_key: res1.data
+                      },
+                      method: 'POST',
+                      success: (res3) => {
+                        if (res3.statusCode === 200) {
+                          Taro.setStorage({ key: 'userID', data: res3.data.openId })
+                          Taro.showToast({ title: '登陆成功！', icon: "success" })
+                          Taro.setStorage({ key: 'login', data: true })
+                        }
+                        else {
+                          Taro.showToast({ title: '登陆失败！', icon: "none" })
+                        }
+                        console.log(res3)
+                      }
+                    })
+                  },
+                  fail: () => {
+                    Taro.showToast({
+                      title: '登陆失败！无法获取用户信息',
+                      icon: 'none'
+                    })
+                    getAuthorize()
+                  }
+                })
+              }
+              else {
+                Taro.showToast({ title: '登陆失败！', icon: "none" })
+              }
             },
             fail: () => {
               Taro.setStorage({ key: 'userID', data: null })
@@ -115,6 +118,9 @@ function getUserInfomation() {
         } else {
           console.log('登录失败！' + res.errMsg)
         }
+      },
+      fail: () => {
+        Taro.showToast({ title: "登陆失败" })
       }
     })
   }
@@ -126,7 +132,6 @@ export function getPrivateTemplate() {
   Taro.request({
     url: 'https://photomaster.ziqiang.net.cn/usertemplate/',
     data: { userID: Taro.getStorageSync('userID') },
-    // data: { userID: 'test' },
     method: "GET",
     dataType: 'json',
     success: function (res) {
@@ -241,16 +246,12 @@ export default class Index extends Component {
     initialize()
 
     const res = Taro.getSystemInfoSync()
-    Taro.setStorage({ key: 'width', data: res.windowWidth })
-    Taro.setStorage({ key: 'height', data: res.windowHeight })
     Taro.setStorage({ key: 'publucTemplateInfo', data: [] })
     Taro.setStorage({ key: 'privateTemplateInfo', data: [] })
   }
 
   componentDidShow() {
     const res = Taro.getSystemInfoSync()
-    Taro.setStorage({ key: 'width', data: res.windowWidth })
-    Taro.setStorage({ key: 'height', data: res.windowHeight })
 
     // initialize()
     getAuthorize()
@@ -296,8 +297,8 @@ export default class Index extends Component {
     return (
       <View className='background-view'>
         <Help />
-        <View className='image-box at-row at-row__justify--center at-row__align--center'>\
-            <View className="center">
+        <View className='image-box at-row at-row__justify--center at-row__align--center'>
+          <View className="center">
             <ChooseUserImage />
           </View>
         </View>

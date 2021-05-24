@@ -47,19 +47,25 @@ page{
 
 .template-card{
     background:  white;
-    margin-left: 5%;
-    margin-right: 5%;
-    margin-top: 5vw;
-    margin-bottom: 5vw;
-    padding: 7%;
-    // padding-left: 5%;
-    // padding-right: 5%;
+    margin: .625rem;
+    padding: .8rem;
     box-shadow: 10px 10px 5px #e0e0e0;
-    width: 90%;
-    height: 90%;
+    width: 16.25rem;
+    height: 16.25rem;
     border-radius: 25px;
     display: flex;
     align-items: center;
+}
+
+.template-imgwrap{
+    width: 100%;
+    height: 0;
+    padding-bottom: 100%;
+    overflow: hidden;
+}
+
+.template-imgbox{
+    height: 14.65rem;
 }
 
 .center{
